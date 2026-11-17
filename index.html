@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OpenJarvis — Athar</title>
+<style>
+  :root{
+    --bg:#08090c; --card:#12141a; --card2:#171a21; --line:#232833;
+    --txt:#f2f4f6; --dim:#9aa3ad; --lime:#c5ff00; --lime-d:#9ecc00;
+    --red:#ff5d5d; --amber:#ffb340; --blue:#57b6ff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  body{margin:0; background:var(--bg); color:var(--txt);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding:0 14px 40px; max-width:640px; margin-inline:auto}
+  header{display:flex; align-items:center; justify-content:space-between;
+    padding:16px 2px 10px}
+  .logo{font-weight:800; font-size:19px; letter-spacing:.2px}
+  .logo span{color:var(--lime)}
+  .who{font-size:12px; color:var(--dim); word-break:break-all}
+  h2{font-size:14px; text-transform:uppercase; letter-spacing:1.4px;
+    color:var(--dim); margin:22px 2px 10px}
+  .card{background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px; margin-bottom:10px}
+  .card p{white-space:pre-wrap; margin:6px 0 0; line-height:1.5; font-size:14.5px}
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  button{border:0; border-radius:12px; padding:13px 12px; font-size:15px;
+    font-weight:700; cursor:pointer; background:var(--card2); color:var(--txt);
+    border:1px solid var(--line)}
+  button:active{transform:scale(.98)}
+  button.primary{background:var(--lime); color:#0a0c00; border-color:var(--lime)}
+  button.primary:active{background:var(--lime-d)}
+  button.danger{background:transparent; color:var(--red); border-color:#3a2323}
+  button.small{padding:8px 12px; font-size:13px; border-radius:10px}
+  button:disabled{opacity:.45; cursor:default}
+  input,textarea{width:100%; background:#0d0f13; color:var(--txt);
+    border:1px solid var(--line); border-radius:12px; padding:13px;
+    font-size:15px; margin-bottom:10px; font-family:inherit}
+  textarea{min-height:84px; resize:vertical}
+  .chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.6px;
+    padding:3px 8px; border-radius:999px; border:1px solid var(--line); color:var(--dim)}
+  .chip.digest{color:var(--lime); border-color:#33400a}
+  .chip.report{color:var(--blue); border-color:#1d3247}
+  .chip.status{color:var(--amber); border-color:#473614}
+  .chip.summary{color:#d3a6ff; border-color:#3a2a52}
+  .chip.done{color:var(--lime); border-color:#33400a}
+  .chip.working{color:var(--amber); border-color:#473614}
+  .chip.error,.chip.rejected,.chip.expired{color:var(--red); border-color:#3a2323}
+  .chip.pending_approval,.chip.approved{color:var(--blue); border-color:#1d3247}
+  .time{font-size:12px; color:var(--dim)}
+  .title{font-weight:700; font-size:15.5px; margin-top:4px}
+  .empty{color:var(--dim); font-size:14px; padding:8px 2px}
+  .msg{font-size:14px; padding:10px 12px; border-radius:10px; margin:10px 0;
+    background:#131a0d; border:1px solid #33400a; color:#d9f99d; display:none}
+  .msg.err{background:#1d1010; border-color:#3a2323; color:#fca5a5}
+  .hidden{display:none !important}
+  .note{font-size:12.5px; color:var(--dim); line-height:1.5}
+  #answer{white-space:pre-wrap; line-height:1.55; font-size:14.5px}
+  .spin{display:inline-block; width:14px; height:14px; border-radius:50%;
+    border:2px solid var(--line); border-top-color:var(--lime);
+    animation:sp 0.8s linear infinite; vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Open<span>Jarvis</span></div>
+    <div class="who" id="who"></div>
+  </div>
+  <button class="small hidden" id="btnLogout">Logout</button>
+</header>
+
+<div class="msg" id="msg"></div>
+
+<!-- ============ LOGIN ============ -->
+<section id="viewAuth">
+  <div class="card">
+    <div class="title" style="margin-bottom:8px">Apne account se login karo</div>
+    <input id="email" type="email" placeholder="Email" autocomplete="email">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <div class="row">
+      <button class="primary" id="btnLogin" style="flex:1">Login</button>
+      <button id="btnSignup" style="flex:1">Naya account banao</button>
+    </div>
+    <p class="note" style="margin-top:10px">Pehli dafa ho to "Naya account banao" dabao —
+      ye tumhara owner account hoga. Sirf tumhari login se feed aur tasks nazar ayenge.</p>
+  </div>
+</section>
+
+<!-- ============ MAIN ============ -->
+<main id="viewMain" class="hidden">
+
+  <h2>Agent ko task do</h2>
+  <div class="card">
+    <textarea id="agentText" maxlength="2000" placeholder="Task apne alfaz me likho — agent wahi karega jo tum yahan likho ge..."></textarea>
+    <button class="primary" id="btnAgentTask" style="width:100%">Task bhejo (pehle Manzoori me jayega)</button>
+    <p class="note" style="margin-top:8px">Task seedha nahi chalega — pehle <b>Manzoori</b> me ayega,
+      pura text dobara dikhe ga, tumhara <b>Approve</b> milega tab hi agent chalega.
+      <b>Reject = task khatam.</b> Bina manzoori ke task 10 minute me expire ho jata hai.</p>
+  </div>
+
+  <h2>Kaam (fixed tasks)</h2>
+  <div class="grid">
+    <button data-task="run_nvidia_watch">📰 Nvidia Watch chalao</button>
+    <button data-task="generate_digest">🌅 Subah ka digest</button>
+    <button data-task="get_latest_report">📄 Latest report</button>
+    <button data-task="system_status">🖥️ System status</button>
+  </div>
+  <p class="note" style="margin-top:8px">Button dabane se request pehle <b>Manzoori</b> me jayegi.
+    Tumhara Approve milega tab hi kaam chalega. Request 1 ghante me expire ho jati hai.</p>
+
+  <h2>Manzoori (pending)</h2>
+  <div id="pendingList"><div class="empty">Koi pending request nahi.</div></div>
+
+  <h2>Meri requests</h2>
+  <div id="taskList"><div class="empty">Abhi koi request nahi bheji.</div></div>
+
+  <h2>Feed — reports &amp; digest</h2>
+  <div id="feedList"><div class="empty">Feed khaali hai. Pehli report Nvidia Watch ya digest ke baad ayegi.</div></div>
+
+  <h2>Sawal poochho (AI)</h2>
+  <div class="card">
+    <div id="keyBox">
+      <p class="note" style="margin-bottom:8px">Sawal-jawab seedha cloud model se hota hai —
+        is ke liye apni OpenRouter key ek dafa yahan dalo. Key sirf <b>is phone</b> me rehti hai,
+        kahin aur nahi jati.</p>
+      <input id="orKey" type="password" placeholder="OpenRouter key (sk-or-...)">
+      <button class="small primary" id="btnSaveKey">Key save karo</button>
+    </div>
+    <div id="askBox" class="hidden">
+      <textarea id="question" placeholder="Sawal likho... (masalan: aaj ki Nvidia report ka khulasa batao)"></textarea>
+      <div class="row">
+        <button class="primary" id="btnAsk" style="flex:1">Poochho</button>
+        <button class="small" id="btnChangeKey">Key badlo</button>
+      </div>
+      <div id="answer" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:16px">
+    <button class="small" id="btnRefresh">↻ Refresh</button>
+    <span class="time" id="lastSync"></span>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ---- Config (public values only — data ki hifazat database ke rules karte hain) ----
+const SUPABASE_URL = "https://lvowcmhwmslhrbmsenyu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2DJZ_plb8Y5nXtbEacGSww_yDy7dDoq";
+const OR_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let user = null, feedCache = [];
+
+const TASK_LABEL = {
+  agent_task: "🤖 Agent task",
+  run_nvidia_watch: "📰 Nvidia Watch",
+  generate_digest: "🌅 Subah ka digest",
+  get_latest_report: "📄 Latest report",
+  system_status: "🖥️ System status",
+  summarize_report: "📝 Report ki summary"
+};
+const STATUS_LABEL = {
+  pending_approval: "Manzoori baqi", approved: "Approve ho gaya",
+  working: "Chal raha hai", done: "Ho gaya", error: "Error",
+  rejected: "Reject", expired: "Expire"
+};
+
+function showMsg(text, isErr){
+  const m = $("msg"); m.textContent = text;
+  m.className = "msg" + (isErr ? " err" : ""); m.style.display = "block";
+  clearTimeout(showMsg._t); showMsg._t = setTimeout(()=> m.style.display="none", 6000);
+}
+function fmtTime(iso){
+  try { return new Date(iso).toLocaleString("en-GB",
+    {day:"numeric", month:"short", hour:"numeric", minute:"2-digit"}); }
+  catch(e){ return iso; }
+}
+function esc(s){ const d=document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
+
+// ---------------- Auth ----------------
+async function refreshSession(){
+  const { data } = await sb.auth.getSession();
+  user = data.session?.user || null;
+  $("viewAuth").classList.toggle("hidden", !!user);
+  $("viewMain").classList.toggle("hidden", !user);
+  $("btnLogout").classList.toggle("hidden", !user);
+  $("who").textContent = user ? user.email : "";
+  if (user) { loadAll(); }
+}
+$("btnLogin").onclick = async () => {
+  const { error } = await sb.auth.signInWithPassword({
+    email: $("email").value.trim(), password: $("password").value });
+  if (error) showMsg("Login nahi hua: " + error.message, true);
+  else { showMsg("Login ho gaya ✅"); refreshSession(); }
+};
+$("btnSignup").onclick = async () => {
+  const { data, error } = await sb.auth.signUp({
+    email: $("email").value.trim(), password: $("password").value });
+  if (error) { showMsg("Account nahi bana: " + error.message, true); return; }
+  if (!data.session)
+    showMsg("Account ban gaya — ab apni email me confirmation link par click karo, phir login karo.");
+  else { showMsg("Account ban gaya aur login bhi ho gaya ✅"); refreshSession(); }
+};
+$("btnLogout").onclick = async () => { await sb.auth.signOut(); refreshSession(); };
+
+// ---------------- Data ----------------
+async function loadAll(){
+  if (!user) return;
+  const [feed, tasks] = await Promise.all([
+    sb.from("oj_feed").select("*").order("created_at", { ascending:false }).limit(50),
+    sb.from("oj_tasks").select("*").order("created_at", { ascending:false }).limit(15)
+  ]);
+  if (!feed.error) { feedCache = feed.data; renderFeed(); }
+  if (!tasks.error) renderTasks(tasks.data);
+  $("lastSync").textContent = "Last sync: " + new Date().toLocaleTimeString("en-GB");
+}
+
+function renderFeed(){
+  const box = $("feedList");
+  if (!feedCache.length){
+    box.innerHTML = '<div class="empty">Feed khaali hai. Pehli report Nvidia Watch ya digest ke baad ayegi.</div>';
+    return;
+  }
+  box.innerHTML = feedCache.map(f => `
+    <div class="card">
+      <span class="chip ${esc(f.kind)}">${esc(f.kind)}</span>
+      <span class="time">${fmtTime(f.created_at)}</span>
+      ${f.title ? `<div class="title">${esc(f.title)}</div>` : ""}
+      <p>${esc(f.body)}</p>
+      <div class="row" style="margin-top:8px">
+        <button class="small" onclick="createTask('summarize_report','${f.id}')">📝 Is ki summary banao</button>
+      </div>
+    </div>`).join("");
+}
+
+function renderTasks(tasks){
+  const pending = tasks.filter(t => t.status === "pending_approval");
+  $("pendingList").innerHTML = pending.length ? pending.map(t => `
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <b>${TASK_LABEL[t.task_type] || esc(t.task_type)}</b>
+        <span class="time">${fmtTime(t.created_at)}</span>
+      </div>
+      ${t.body ? `<p style="background:#0d0f13; border:1px solid var(--line); border-radius:10px; padding:10px">${esc(t.body)}</p>` : ""}
+      <div class="row" style="margin-top:10px">
+        <button class="primary small" onclick="setTaskStatus('${t.id}','approved')">✅ Approve — yehi text chalega</button>
+        <button class="danger small" onclick="setTaskStatus('${t.id}','rejected')">Reject</button>
+      </div>
+    </div>`).join("")
+    : '<div class="empty">Koi pending request nahi.</div>';
+
+  $("taskList").innerHTML = tasks.length ? tasks.map(t => `
+    <div class="card" style="padding:10px 14px">
+      <div class="row" style="justify-content:space-between">
+        <span>${TASK_LABEL[t.task_type] || esc(t.task_type)}</span>
+        <span class="chip ${esc(t.status)}">${STATUS_LABEL[t.status] || esc(t.status)}</span>
+      </div>
+      <div class="time">${fmtTime(t.created_at)}</div>
+    </div>`).join("")
+    : '<div class="empty">Abhi koi request nahi bheji.</div>';
+}
+
+// ---------------- Actions ----------------
+async function createTask(taskType, targetId){
+  if (!user) return;
+  const row = { task_type: taskType, owner: user.id };
+  if (targetId) row.target_id = targetId;
+  const { error } = await sb.from("oj_tasks").insert(row);
+  if (error) showMsg("Request nahi bani: " + error.message, true);
+  else { showMsg("Request Manzoori me chali gayi — neechay Approve dabao."); loadAll(); }
+}
+async function setTaskStatus(id, status){
+  const patch = { status };
+  if (status === "approved") patch.approved_at = new Date().toISOString();
+  const { error } = await sb.from("oj_tasks").update(patch).eq("id", id);
+  if (error) showMsg("Status nahi badla: " + error.message, true);
+  else { showMsg(status === "approved" ? "Approve ho gaya ✅" : "Reject kar diya."); loadAll(); }
+}
+document.querySelectorAll("[data-task]").forEach(b =>
+  b.onclick = () => createTask(b.dataset.task));
+$("btnRefresh").onclick = loadAll;
+$("btnAgentTask").onclick = async () => {
+  const text = $("agentText").value.trim();
+  if (!text) { showMsg("Pehle task likho.", true); return; }
+  if (!user) return;
+  // Agent tasks: bina manzoori ke 10 minute me expire.
+  const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const { error } = await sb.from("oj_tasks").insert({
+    task_type: "agent_task", body: text, owner: user.id, expires_at: expires });
+  if (error) showMsg("Task nahi bana: " + error.message, true);
+  else {
+    $("agentText").value = "";
+    showMsg("Task Manzoori me chala gaya — neechay pura text parh kar Approve dabao.");
+    loadAll();
+  }
+};
+
+// ---------------- Q&A (seedha cloud model — VM is me shamil nahi) ----------------
+function orKey(){ return localStorage.getItem("oj_or_key") || ""; }
+function syncKeyUI(){
+  const has = !!orKey();
+  $("keyBox").classList.toggle("hidden", has);
+  $("askBox").classList.toggle("hidden", !has);
+}
+$("btnSaveKey").onclick = () => {
+  const v = $("orKey").value.trim();
+  if (!v) { showMsg("Pehle key dalo.", true); return; }
+  localStorage.setItem("oj_or_key", v); syncKeyUI(); showMsg("Key save ho gayi (sirf is phone me).");
+};
+$("btnChangeKey").onclick = () => { localStorage.removeItem("oj_or_key"); syncKeyUI(); };
+$("btnAsk").onclick = async () => {
+  const q = $("question").value.trim();
+  if (!q) return;
+  const key = orKey(); if (!key) { syncKeyUI(); return; }
+  const btn = $("btnAsk"); btn.disabled = true;
+  $("answer").innerHTML = '<span class="spin"></span> Soch raha hai...';
+  const context = feedCache.slice(0, 5)
+    .map(f => `[${f.kind}] ${f.title || ""}\n${(f.body || "").slice(0, 1200)}`).join("\n\n");
+  try {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OR_MODEL,
+        messages: [
+          { role: "system", content:
+            "Tum Athar ke assistant ho. Roman Urdu/English mix me mukhtasar aur wazeh jawab do. " +
+            "Nechay us ki taza reports (feed) di gayi hain — sawal unhi se mutaliq ho to unhi se jawab do.\n\nFEED:\n" + context },
+          { role: "user", content: q }
+        ]
+      })
+    });
+    const j = await r.json();
+    const text = j.choices?.[0]?.message?.content;
+    $("answer").textContent = text || ("Jawab nahi aya. " + (j.error?.message || ""));
+  } catch(e) {
+    $("answer").textContent = "Network error: " + e.message;
+  }
+  btn.disabled = false;
+};
+
+// ---------------- Start ----------------
+syncKeyUI();
+refreshSession();
+setInterval(() => { if (user) loadAll(); }, 30000);
+</script>
+</body>
+</html>

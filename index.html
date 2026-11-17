@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>OpenJarvis — Athar</title>
+<title>OpenJarvis</title>
 <style>
   :root{
     --bg:#08090c; --card:#12141a; --card2:#171a21; --line:#232833;
@@ -13,33 +13,32 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
   body{margin:0; background:var(--bg); color:var(--txt);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    padding:0 14px 40px; max-width:640px; margin-inline:auto}
+    max-width:640px; margin-inline:auto; padding:0 14px 96px}
   header{display:flex; align-items:center; justify-content:space-between;
-    padding:16px 2px 10px}
-  .logo{font-weight:800; font-size:19px; letter-spacing:.2px}
+    padding:16px 2px 6px}
+  .logo{font-weight:800; font-size:20px}
   .logo span{color:var(--lime)}
   .who{font-size:12px; color:var(--dim); word-break:break-all}
-  h2{font-size:14px; text-transform:uppercase; letter-spacing:1.4px;
-    color:var(--dim); margin:22px 2px 10px}
+  h2{font-size:17px; margin:14px 2px 4px}
+  .sub{font-size:13px; color:var(--dim); margin:0 2px 12px; line-height:1.45}
   .card{background:var(--card); border:1px solid var(--line);
-    border-radius:14px; padding:14px; margin-bottom:10px}
-  .card p{white-space:pre-wrap; margin:6px 0 0; line-height:1.5; font-size:14.5px}
-  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    border-radius:16px; padding:16px; margin-bottom:12px}
+  .card p.body{white-space:pre-wrap; margin:8px 0 0; line-height:1.55; font-size:14.5px}
+  .tasktext{background:#0d0f13; border:1px solid var(--line); border-radius:10px;
+    padding:10px; white-space:pre-wrap; line-height:1.5; font-size:14.5px; margin-top:8px}
   .grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-  button{border:0; border-radius:12px; padding:13px 12px; font-size:15px;
-    font-weight:700; cursor:pointer; background:var(--card2); color:var(--txt);
-    border:1px solid var(--line)}
+  button{border:1px solid var(--line); border-radius:12px; padding:14px 12px;
+    font-size:15px; font-weight:700; cursor:pointer; background:var(--card2); color:var(--txt)}
   button:active{transform:scale(.98)}
   button.primary{background:var(--lime); color:#0a0c00; border-color:var(--lime)}
-  button.primary:active{background:var(--lime-d)}
   button.danger{background:transparent; color:var(--red); border-color:#3a2323}
-  button.small{padding:8px 12px; font-size:13px; border-radius:10px}
-  button:disabled{opacity:.45; cursor:default}
+  button.small{padding:8px 14px; font-size:13px; border-radius:10px}
+  button:disabled{opacity:.45}
   input,textarea{width:100%; background:#0d0f13; color:var(--txt);
     border:1px solid var(--line); border-radius:12px; padding:13px;
     font-size:15px; margin-bottom:10px; font-family:inherit}
-  textarea{min-height:84px; resize:vertical}
-  .chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.6px;
+  textarea{min-height:96px; resize:vertical}
+  .chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.5px;
     padding:3px 8px; border-radius:999px; border:1px solid var(--line); color:var(--dim)}
   .chip.digest{color:var(--lime); border-color:#33400a}
   .chip.report{color:var(--blue); border-color:#1d3247}
@@ -50,18 +49,31 @@
   .chip.error,.chip.rejected,.chip.expired{color:var(--red); border-color:#3a2323}
   .chip.pending_approval,.chip.approved{color:var(--blue); border-color:#1d3247}
   .time{font-size:12px; color:var(--dim)}
-  .title{font-weight:700; font-size:15.5px; margin-top:4px}
-  .empty{color:var(--dim); font-size:14px; padding:8px 2px}
+  .title{font-weight:700; font-size:15.5px; margin-top:5px}
+  .empty{color:var(--dim); font-size:14px; padding:10px 2px; line-height:1.5}
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
   .msg{font-size:14px; padding:10px 12px; border-radius:10px; margin:10px 0;
     background:#131a0d; border:1px solid #33400a; color:#d9f99d; display:none}
   .msg.err{background:#1d1010; border-color:#3a2323; color:#fca5a5}
   .hidden{display:none !important}
-  .note{font-size:12.5px; color:var(--dim); line-height:1.5}
   #answer{white-space:pre-wrap; line-height:1.55; font-size:14.5px}
   .spin{display:inline-block; width:14px; height:14px; border-radius:50%;
     border:2px solid var(--line); border-top-color:var(--lime);
-    animation:sp 0.8s linear infinite; vertical-align:-2px}
+    animation:sp .8s linear infinite; vertical-align:-2px}
   @keyframes sp{to{transform:rotate(360deg)}}
+  /* bottom navigation — like a real app */
+  nav{position:fixed; left:0; right:0; bottom:0; z-index:10;
+    background:rgba(10,11,14,.96); border-top:1px solid var(--line);
+    backdrop-filter:blur(8px)}
+  nav .inner{max-width:640px; margin-inline:auto; display:grid;
+    grid-template-columns:repeat(4,1fr); padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  nav button{background:none; border:0; color:var(--dim); font-size:11.5px;
+    font-weight:600; padding:7px 2px; border-radius:10px; position:relative}
+  nav button .ic{display:block; font-size:20px; margin-bottom:2px}
+  nav button.active{color:var(--lime)}
+  .badge{position:absolute; top:2px; right:calc(50% - 20px); min-width:17px; height:17px;
+    padding:0 4px; border-radius:999px; background:var(--red); color:#fff;
+    font-size:10.5px; font-weight:800; line-height:17px; text-align:center}
 </style>
 </head>
 <body>
@@ -71,85 +83,102 @@
     <div class="logo">Open<span>Jarvis</span></div>
     <div class="who" id="who"></div>
   </div>
-  <button class="small hidden" id="btnLogout">Logout</button>
+  <button class="small hidden" id="btnLogout">Log out</button>
 </header>
 
 <div class="msg" id="msg"></div>
 
-<!-- ============ LOGIN ============ -->
+<!-- ================= SIGN IN ================= -->
 <section id="viewAuth">
   <div class="card">
-    <div class="title" style="margin-bottom:8px">Apne account se login karo</div>
+    <div class="title" style="font-size:17px; margin:0 0 4px">Welcome</div>
+    <p class="sub" style="margin:0 0 12px">Sign in with your owner account. First time here? Create the account first, then sign in.</p>
     <input id="email" type="email" placeholder="Email" autocomplete="email">
     <input id="password" type="password" placeholder="Password" autocomplete="current-password">
-    <div class="row">
-      <button class="primary" id="btnLogin" style="flex:1">Login</button>
-      <button id="btnSignup" style="flex:1">Naya account banao</button>
-    </div>
-    <p class="note" style="margin-top:10px">Pehli dafa ho to "Naya account banao" dabao —
-      ye tumhara owner account hoga. Sirf tumhari login se feed aur tasks nazar ayenge.</p>
+    <button class="primary" id="btnLogin" style="width:100%; margin-bottom:10px">Sign In</button>
+    <button id="btnSignup" style="width:100%">Create Account</button>
   </div>
 </section>
 
-<!-- ============ MAIN ============ -->
+<!-- ================= APP ================= -->
 <main id="viewMain" class="hidden">
 
-  <h2>Agent ko task do</h2>
-  <div class="card">
-    <textarea id="agentText" maxlength="2000" placeholder="Task apne alfaz me likho — agent wahi karega jo tum yahan likho ge..."></textarea>
-    <button class="primary" id="btnAgentTask" style="width:100%">Task bhejo (pehle Manzoori me jayega)</button>
-    <p class="note" style="margin-top:8px">Task seedha nahi chalega — pehle <b>Manzoori</b> me ayega,
-      pura text dobara dikhe ga, tumhara <b>Approve</b> milega tab hi agent chalega.
-      <b>Reject = task khatam.</b> Bina manzoori ke task 10 minute me expire ho jata hai.</p>
-  </div>
-
-  <h2>Kaam (fixed tasks)</h2>
-  <div class="grid">
-    <button data-task="run_nvidia_watch">📰 Nvidia Watch chalao</button>
-    <button data-task="generate_digest">🌅 Subah ka digest</button>
-    <button data-task="get_latest_report">📄 Latest report</button>
-    <button data-task="system_status">🖥️ System status</button>
-  </div>
-  <p class="note" style="margin-top:8px">Button dabane se request pehle <b>Manzoori</b> me jayegi.
-    Tumhara Approve milega tab hi kaam chalega. Request 1 ghante me expire ho jati hai.</p>
-
-  <h2>Manzoori (pending)</h2>
-  <div id="pendingList"><div class="empty">Koi pending request nahi.</div></div>
-
-  <h2>Meri requests</h2>
-  <div id="taskList"><div class="empty">Abhi koi request nahi bheji.</div></div>
-
-  <h2>Feed — reports &amp; digest</h2>
-  <div id="feedList"><div class="empty">Feed khaali hai. Pehli report Nvidia Watch ya digest ke baad ayegi.</div></div>
-
-  <h2>Sawal poochho (AI)</h2>
-  <div class="card">
-    <div id="keyBox">
-      <p class="note" style="margin-bottom:8px">Sawal-jawab seedha cloud model se hota hai —
-        is ke liye apni OpenRouter key ek dafa yahan dalo. Key sirf <b>is phone</b> me rehti hai,
-        kahin aur nahi jati.</p>
-      <input id="orKey" type="password" placeholder="OpenRouter key (sk-or-...)">
-      <button class="small primary" id="btnSaveKey">Key save karo</button>
+  <!-- HOME -->
+  <section id="screen-home">
+    <h2>New Agent Task</h2>
+    <p class="sub">Write a task in your own words. It will not run immediately — it goes to Approvals first, and only runs after you approve it.</p>
+    <div class="card">
+      <textarea id="agentText" maxlength="2000" placeholder="Example: Research today's news about Nvidia and write a short report"></textarea>
+      <button class="primary" id="btnAgentTask" style="width:100%">Send Task</button>
     </div>
-    <div id="askBox" class="hidden">
-      <textarea id="question" placeholder="Sawal likho... (masalan: aaj ki Nvidia report ka khulasa batao)"></textarea>
-      <div class="row">
-        <button class="primary" id="btnAsk" style="flex:1">Poochho</button>
-        <button class="small" id="btnChangeKey">Key badlo</button>
+
+    <h2>Quick Tasks</h2>
+    <p class="sub">Fixed one-tap tasks. These also wait for your approval.</p>
+    <div class="grid">
+      <button data-task="run_nvidia_watch">📰 Nvidia Watch</button>
+      <button data-task="generate_digest">🌅 Morning Digest</button>
+      <button data-task="get_latest_report">📄 Latest Report</button>
+      <button data-task="system_status">🖥️ System Status</button>
+    </div>
+  </section>
+
+  <!-- APPROVALS -->
+  <section id="screen-approvals" class="hidden">
+    <h2>Waiting for Approval</h2>
+    <p class="sub">Read the exact task text, then approve or reject. Approved tasks run exactly as written — the text cannot be changed after approval. Unapproved tasks expire: agent tasks in 10 minutes, quick tasks in 1 hour.</p>
+    <div id="pendingList"><div class="empty">Nothing waiting. New tasks you send will appear here.</div></div>
+
+    <h2 style="margin-top:22px">My Requests</h2>
+    <div id="taskList"><div class="empty">No requests yet.</div></div>
+  </section>
+
+  <!-- FEED -->
+  <section id="screen-feed" class="hidden">
+    <h2>Feed</h2>
+    <p class="sub">Reports and digests from your agents, newest first.</p>
+    <div id="feedList"><div class="empty">Your feed is empty. The first report will appear after a task runs.</div></div>
+  </section>
+
+  <!-- ASK -->
+  <section id="screen-ask" class="hidden">
+    <h2>Ask a Question</h2>
+    <p class="sub">Questions go straight to the cloud AI model, with your latest reports as context. Asking only answers — it does not run tasks.</p>
+    <div class="card">
+      <div id="keyBox">
+        <p class="sub" style="margin:0 0 10px">One-time setup: paste your OpenRouter key. It is stored only on this phone and is sent only to OpenRouter.</p>
+        <input id="orKey" type="password" placeholder="OpenRouter key (sk-or-...)">
+        <button class="small primary" id="btnSaveKey">Save Key</button>
       </div>
-      <div id="answer" style="margin-top:10px"></div>
+      <div id="askBox" class="hidden">
+        <textarea id="question" placeholder="Type your question..."></textarea>
+        <div class="row">
+          <button class="primary" id="btnAsk" style="flex:1">Ask</button>
+          <button class="small" id="btnChangeKey">Change Key</button>
+        </div>
+        <div id="answer" style="margin-top:12px"></div>
+      </div>
     </div>
-  </div>
+    <div class="row">
+      <button class="small" id="btnRefresh">↻ Refresh</button>
+      <span class="time" id="lastSync"></span>
+    </div>
+  </section>
 
-  <div class="row" style="margin-top:16px">
-    <button class="small" id="btnRefresh">↻ Refresh</button>
-    <span class="time" id="lastSync"></span>
-  </div>
 </main>
+
+<!-- bottom navigation -->
+<nav id="tabbar" class="hidden">
+  <div class="inner">
+    <button data-screen="home" class="active"><span class="ic">🏠</span>Home</button>
+    <button data-screen="approvals"><span class="ic">✅</span>Approvals<span class="badge hidden" id="pendingBadge">0</span></button>
+    <button data-screen="feed"><span class="ic">📰</span>Feed</button>
+    <button data-screen="ask"><span class="ic">💬</span>Ask</button>
+  </div>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ---- Config (public values only — data ki hifazat database ke rules karte hain) ----
+// ---- Config (public values only — the database rules protect the data) ----
 const SUPABASE_URL = "https://lvowcmhwmslhrbmsenyu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_2DJZ_plb8Y5nXtbEacGSww_yDy7dDoq";
 const OR_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free";
@@ -159,17 +188,17 @@ const $ = id => document.getElementById(id);
 let user = null, feedCache = [];
 
 const TASK_LABEL = {
-  agent_task: "🤖 Agent task",
+  agent_task: "🤖 Agent Task",
   run_nvidia_watch: "📰 Nvidia Watch",
-  generate_digest: "🌅 Subah ka digest",
-  get_latest_report: "📄 Latest report",
-  system_status: "🖥️ System status",
-  summarize_report: "📝 Report ki summary"
+  generate_digest: "🌅 Morning Digest",
+  get_latest_report: "📄 Latest Report",
+  system_status: "🖥️ System Status",
+  summarize_report: "📝 Report Summary"
 };
 const STATUS_LABEL = {
-  pending_approval: "Manzoori baqi", approved: "Approve ho gaya",
-  working: "Chal raha hai", done: "Ho gaya", error: "Error",
-  rejected: "Reject", expired: "Expire"
+  pending_approval: "Waiting", approved: "Approved",
+  working: "Running", done: "Done", error: "Error",
+  rejected: "Rejected", expired: "Expired"
 };
 
 function showMsg(text, isErr){
@@ -184,29 +213,41 @@ function fmtTime(iso){
 }
 function esc(s){ const d=document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
 
+// ---------------- Navigation ----------------
+function showScreen(name){
+  ["home","approvals","feed","ask"].forEach(s =>
+    $("screen-" + s).classList.toggle("hidden", s !== name));
+  document.querySelectorAll("nav button[data-screen]").forEach(b =>
+    b.classList.toggle("active", b.dataset.screen === name));
+  window.scrollTo({ top: 0 });
+}
+document.querySelectorAll("nav button[data-screen]").forEach(b =>
+  b.onclick = () => showScreen(b.dataset.screen));
+
 // ---------------- Auth ----------------
 async function refreshSession(){
   const { data } = await sb.auth.getSession();
   user = data.session?.user || null;
   $("viewAuth").classList.toggle("hidden", !!user);
   $("viewMain").classList.toggle("hidden", !user);
+  $("tabbar").classList.toggle("hidden", !user);
   $("btnLogout").classList.toggle("hidden", !user);
   $("who").textContent = user ? user.email : "";
-  if (user) { loadAll(); }
+  if (user) loadAll();
 }
 $("btnLogin").onclick = async () => {
   const { error } = await sb.auth.signInWithPassword({
     email: $("email").value.trim(), password: $("password").value });
-  if (error) showMsg("Login nahi hua: " + error.message, true);
-  else { showMsg("Login ho gaya ✅"); refreshSession(); }
+  if (error) showMsg("Sign-in failed: " + error.message, true);
+  else { showMsg("Signed in ✅"); refreshSession(); }
 };
 $("btnSignup").onclick = async () => {
   const { data, error } = await sb.auth.signUp({
     email: $("email").value.trim(), password: $("password").value });
-  if (error) { showMsg("Account nahi bana: " + error.message, true); return; }
+  if (error) { showMsg("Could not create account: " + error.message, true); return; }
   if (!data.session)
-    showMsg("Account ban gaya — ab apni email me confirmation link par click karo, phir login karo.");
-  else { showMsg("Account ban gaya aur login bhi ho gaya ✅"); refreshSession(); }
+    showMsg("Account created. Open the confirmation link in your email, then sign in.");
+  else { showMsg("Account created and signed in ✅"); refreshSession(); }
 };
 $("btnLogout").onclick = async () => { await sb.auth.signOut(); refreshSession(); };
 
@@ -225,7 +266,7 @@ async function loadAll(){
 function renderFeed(){
   const box = $("feedList");
   if (!feedCache.length){
-    box.innerHTML = '<div class="empty">Feed khaali hai. Pehli report Nvidia Watch ya digest ke baad ayegi.</div>';
+    box.innerHTML = '<div class="empty">Your feed is empty. The first report will appear after a task runs.</div>';
     return;
   }
   box.innerHTML = feedCache.map(f => `
@@ -233,38 +274,42 @@ function renderFeed(){
       <span class="chip ${esc(f.kind)}">${esc(f.kind)}</span>
       <span class="time">${fmtTime(f.created_at)}</span>
       ${f.title ? `<div class="title">${esc(f.title)}</div>` : ""}
-      <p>${esc(f.body)}</p>
-      <div class="row" style="margin-top:8px">
-        <button class="small" onclick="createTask('summarize_report','${f.id}')">📝 Is ki summary banao</button>
+      <p class="body">${esc(f.body)}</p>
+      <div class="row" style="margin-top:10px">
+        <button class="small" onclick="createTask('summarize_report','${f.id}')">📝 Summarize this</button>
       </div>
     </div>`).join("");
 }
 
 function renderTasks(tasks){
   const pending = tasks.filter(t => t.status === "pending_approval");
+  const badge = $("pendingBadge");
+  badge.textContent = pending.length;
+  badge.classList.toggle("hidden", pending.length === 0);
+
   $("pendingList").innerHTML = pending.length ? pending.map(t => `
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <b>${TASK_LABEL[t.task_type] || esc(t.task_type)}</b>
         <span class="time">${fmtTime(t.created_at)}</span>
       </div>
-      ${t.body ? `<p style="background:#0d0f13; border:1px solid var(--line); border-radius:10px; padding:10px">${esc(t.body)}</p>` : ""}
-      <div class="row" style="margin-top:10px">
-        <button class="primary small" onclick="setTaskStatus('${t.id}','approved')">✅ Approve — yehi text chalega</button>
+      ${t.body ? `<div class="tasktext">${esc(t.body)}</div>` : ""}
+      <div class="row" style="margin-top:12px">
+        <button class="primary small" onclick="setTaskStatus('${t.id}','approved')">✅ Approve — run this</button>
         <button class="danger small" onclick="setTaskStatus('${t.id}','rejected')">Reject</button>
       </div>
     </div>`).join("")
-    : '<div class="empty">Koi pending request nahi.</div>';
+    : '<div class="empty">Nothing waiting. New tasks you send will appear here.</div>';
 
   $("taskList").innerHTML = tasks.length ? tasks.map(t => `
-    <div class="card" style="padding:10px 14px">
+    <div class="card" style="padding:11px 14px">
       <div class="row" style="justify-content:space-between">
         <span>${TASK_LABEL[t.task_type] || esc(t.task_type)}</span>
         <span class="chip ${esc(t.status)}">${STATUS_LABEL[t.status] || esc(t.status)}</span>
       </div>
       <div class="time">${fmtTime(t.created_at)}</div>
     </div>`).join("")
-    : '<div class="empty">Abhi koi request nahi bheji.</div>';
+    : '<div class="empty">No requests yet.</div>';
 }
 
 // ---------------- Actions ----------------
@@ -273,36 +318,36 @@ async function createTask(taskType, targetId){
   const row = { task_type: taskType, owner: user.id };
   if (targetId) row.target_id = targetId;
   const { error } = await sb.from("oj_tasks").insert(row);
-  if (error) showMsg("Request nahi bani: " + error.message, true);
-  else { showMsg("Request Manzoori me chali gayi — neechay Approve dabao."); loadAll(); }
+  if (error) showMsg("Could not create the task: " + error.message, true);
+  else { showMsg("Task sent. Now approve it in the Approvals tab."); showScreen("approvals"); loadAll(); }
 }
 async function setTaskStatus(id, status){
   const patch = { status };
   if (status === "approved") patch.approved_at = new Date().toISOString();
   const { error } = await sb.from("oj_tasks").update(patch).eq("id", id);
-  if (error) showMsg("Status nahi badla: " + error.message, true);
-  else { showMsg(status === "approved" ? "Approve ho gaya ✅" : "Reject kar diya."); loadAll(); }
+  if (error) showMsg("Could not update: " + error.message, true);
+  else { showMsg(status === "approved" ? "Approved ✅" : "Rejected."); loadAll(); }
 }
 document.querySelectorAll("[data-task]").forEach(b =>
   b.onclick = () => createTask(b.dataset.task));
 $("btnRefresh").onclick = loadAll;
 $("btnAgentTask").onclick = async () => {
   const text = $("agentText").value.trim();
-  if (!text) { showMsg("Pehle task likho.", true); return; }
+  if (!text) { showMsg("Write the task first.", true); return; }
   if (!user) return;
-  // Agent tasks: bina manzoori ke 10 minute me expire.
+  // Agent tasks expire in 10 minutes if not approved.
   const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const { error } = await sb.from("oj_tasks").insert({
     task_type: "agent_task", body: text, owner: user.id, expires_at: expires });
-  if (error) showMsg("Task nahi bana: " + error.message, true);
+  if (error) showMsg("Could not create the task: " + error.message, true);
   else {
     $("agentText").value = "";
-    showMsg("Task Manzoori me chala gaya — neechay pura text parh kar Approve dabao.");
-    loadAll();
+    showMsg("Task sent. Now approve it in the Approvals tab.");
+    showScreen("approvals"); loadAll();
   }
 };
 
-// ---------------- Q&A (seedha cloud model — VM is me shamil nahi) ----------------
+// ---------------- Ask (straight to the cloud model — no VM involved) ----------------
 function orKey(){ return localStorage.getItem("oj_or_key") || ""; }
 function syncKeyUI(){
   const has = !!orKey();
@@ -311,8 +356,8 @@ function syncKeyUI(){
 }
 $("btnSaveKey").onclick = () => {
   const v = $("orKey").value.trim();
-  if (!v) { showMsg("Pehle key dalo.", true); return; }
-  localStorage.setItem("oj_or_key", v); syncKeyUI(); showMsg("Key save ho gayi (sirf is phone me).");
+  if (!v) { showMsg("Paste the key first.", true); return; }
+  localStorage.setItem("oj_or_key", v); syncKeyUI(); showMsg("Key saved on this phone.");
 };
 $("btnChangeKey").onclick = () => { localStorage.removeItem("oj_or_key"); syncKeyUI(); };
 $("btnAsk").onclick = async () => {
@@ -320,7 +365,7 @@ $("btnAsk").onclick = async () => {
   if (!q) return;
   const key = orKey(); if (!key) { syncKeyUI(); return; }
   const btn = $("btnAsk"); btn.disabled = true;
-  $("answer").innerHTML = '<span class="spin"></span> Soch raha hai...';
+  $("answer").innerHTML = '<span class="spin"></span> Thinking...';
   const context = feedCache.slice(0, 5)
     .map(f => `[${f.kind}] ${f.title || ""}\n${(f.body || "").slice(0, 1200)}`).join("\n\n");
   try {
@@ -331,15 +376,15 @@ $("btnAsk").onclick = async () => {
         model: OR_MODEL,
         messages: [
           { role: "system", content:
-            "Tum Athar ke assistant ho. Roman Urdu/English mix me mukhtasar aur wazeh jawab do. " +
-            "Nechay us ki taza reports (feed) di gayi hain — sawal unhi se mutaliq ho to unhi se jawab do.\n\nFEED:\n" + context },
+            "You are Athar's assistant. Answer briefly and clearly in simple English. " +
+            "Below are his latest reports (the feed). If the question is about them, answer from them.\n\nFEED:\n" + context },
           { role: "user", content: q }
         ]
       })
     });
     const j = await r.json();
     const text = j.choices?.[0]?.message?.content;
-    $("answer").textContent = text || ("Jawab nahi aya. " + (j.error?.message || ""));
+    $("answer").textContent = text || ("No answer. " + (j.error?.message || ""));
   } catch(e) {
     $("answer").textContent = "Network error: " + e.message;
   }

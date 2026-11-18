@@ -107,8 +107,10 @@
     <div class="title" style="font-size:17px; margin:0 0 4px">Owner Sign In</div>
     <p class="sub" style="margin:0 0 12px">This console is private. Sign in with your owner account to send tasks, approve them, and read reports.</p>
     <input id="email" type="email" placeholder="Email" autocomplete="email">
+    <button class="primary" id="btnMagic" style="width:100%">Email Me a Sign-In Link — No Password Needed</button>
+    <p class="sub" style="margin:12px 0 10px; text-align:center">— or use your password —</p>
     <input id="password" type="password" placeholder="Password" autocomplete="current-password">
-    <button class="primary" id="btnLogin" style="width:100%">Sign In</button>
+    <button id="btnLogin" style="width:100%">Sign In with Password</button>
     <button class="linkish" id="btnForgot">Forgot your password?</button>
   </div>
 </section>
@@ -277,6 +279,14 @@ $("btnLogin").onclick = async () => {
     email: $("email").value.trim(), password: $("password").value });
   if (error) showMsg("Sign-in failed: " + error.message, true);
   else { showMsg("Signed in."); refreshSession(); }
+};
+$("btnMagic").onclick = async () => {
+  const email = $("email").value.trim();
+  if (!email) { showMsg("Enter your email above first.", true); return; }
+  const { error } = await sb.auth.signInWithOtp({
+    email, options: { shouldCreateUser: false, emailRedirectTo: APP_URL } });
+  if (error) showMsg("Could not send the sign-in link: " + error.message, true);
+  else showMsg("Sign-in link sent. Open your email and tap the link — you will be signed in, no password needed.");
 };
 $("btnForgot").onclick = async () => {
   const email = $("email").value.trim();

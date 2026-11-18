@@ -3,24 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>OpenJarvis</title>
+<meta name="theme-color" content="#08090c">
+<meta name="description" content="OpenJarvis Owner Console — send agent tasks, approve them, and read reports.">
+<title>OpenJarvis — Owner Console</title>
 <style>
   :root{
     --bg:#08090c; --card:#12141a; --card2:#171a21; --line:#232833;
-    --txt:#f2f4f6; --dim:#9aa3ad; --lime:#c5ff00; --lime-d:#9ecc00;
+    --txt:#f2f4f6; --dim:#9aa3ad; --lime:#c5ff00;
     --red:#ff5d5d; --amber:#ffb340; --blue:#57b6ff;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
   body{margin:0; background:var(--bg); color:var(--txt);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     max-width:640px; margin-inline:auto; padding:0 14px 96px}
-  header{display:flex; align-items:center; justify-content:space-between;
-    padding:16px 2px 6px}
-  .logo{font-weight:800; font-size:20px}
+  header{display:flex; align-items:flex-start; justify-content:space-between;
+    padding:18px 2px 6px}
+  .logo{font-weight:800; font-size:21px; letter-spacing:.2px}
   .logo span{color:var(--lime)}
-  .who{font-size:12px; color:var(--dim); word-break:break-all}
-  h2{font-size:17px; margin:14px 2px 4px}
-  .sub{font-size:13px; color:var(--dim); margin:0 2px 12px; line-height:1.45}
+  .tagline{font-size:11px; letter-spacing:1.6px; text-transform:uppercase;
+    color:var(--dim); margin-top:2px}
+  .who{font-size:12px; color:var(--dim); word-break:break-all; margin-top:4px}
+  h2{font-size:17px; margin:18px 2px 4px}
+  .sub{font-size:13px; color:var(--dim); margin:0 2px 12px; line-height:1.5}
   .card{background:var(--card); border:1px solid var(--line);
     border-radius:16px; padding:16px; margin-bottom:12px}
   .card p.body{white-space:pre-wrap; margin:8px 0 0; line-height:1.55; font-size:14.5px}
@@ -61,19 +65,23 @@
     border:2px solid var(--line); border-top-color:var(--lime);
     animation:sp .8s linear infinite; vertical-align:-2px}
   @keyframes sp{to{transform:rotate(360deg)}}
-  /* bottom navigation — like a real app */
+  .linkish{background:none; border:0; color:var(--blue); font-size:13.5px;
+    font-weight:600; padding:6px 2px; text-align:left}
+  .notice{background:#171207; border:1px solid #473614; color:#fcd34d;
+    border-radius:12px; padding:12px 14px; font-size:13.5px; line-height:1.5; margin-bottom:12px}
+  /* bottom navigation */
   nav{position:fixed; left:0; right:0; bottom:0; z-index:10;
     background:rgba(10,11,14,.96); border-top:1px solid var(--line);
     backdrop-filter:blur(8px)}
   nav .inner{max-width:640px; margin-inline:auto; display:grid;
-    grid-template-columns:repeat(4,1fr); padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
-  nav button{background:none; border:0; color:var(--dim); font-size:11.5px;
-    font-weight:600; padding:7px 2px; border-radius:10px; position:relative}
-  nav button .ic{display:block; font-size:20px; margin-bottom:2px}
-  nav button.active{color:var(--lime)}
-  .badge{position:absolute; top:2px; right:calc(50% - 20px); min-width:17px; height:17px;
+    grid-template-columns:repeat(4,1fr); padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+  nav button{background:none; border:0; color:var(--dim); font-size:12.5px;
+    font-weight:700; letter-spacing:.4px; padding:8px 2px; border-radius:10px; position:relative}
+  nav button.active{color:#0a0c00; background:var(--lime)}
+  .badge{position:absolute; top:2px; right:calc(50% - 24px); min-width:17px; height:17px;
     padding:0 4px; border-radius:999px; background:var(--red); color:#fff;
     font-size:10.5px; font-weight:800; line-height:17px; text-align:center}
+  nav button.active .badge{top:-4px}
 </style>
 </head>
 <body>
@@ -81,6 +89,7 @@
 <header>
   <div>
     <div class="logo">Open<span>Jarvis</span></div>
+    <div class="tagline">Owner Console</div>
     <div class="who" id="who"></div>
   </div>
   <button class="small hidden" id="btnLogout">Log out</button>
@@ -90,13 +99,27 @@
 
 <!-- ================= SIGN IN ================= -->
 <section id="viewAuth">
+  <div class="notice hidden" id="guestNotice">
+    You are currently in a guest session, not your owner account.
+    Log out first, then sign in with your owner email and password.
+  </div>
   <div class="card">
-    <div class="title" style="font-size:17px; margin:0 0 4px">Welcome</div>
-    <p class="sub" style="margin:0 0 12px">Sign in with your owner account. First time here? Create the account first, then sign in.</p>
+    <div class="title" style="font-size:17px; margin:0 0 4px">Owner Sign In</div>
+    <p class="sub" style="margin:0 0 12px">This console is private. Sign in with your owner account to send tasks, approve them, and read reports.</p>
     <input id="email" type="email" placeholder="Email" autocomplete="email">
     <input id="password" type="password" placeholder="Password" autocomplete="current-password">
-    <button class="primary" id="btnLogin" style="width:100%; margin-bottom:10px">Sign In</button>
-    <button id="btnSignup" style="width:100%">Create Account</button>
+    <button class="primary" id="btnLogin" style="width:100%">Sign In</button>
+    <button class="linkish" id="btnForgot">Forgot your password?</button>
+  </div>
+</section>
+
+<!-- ================= SET NEW PASSWORD (recovery) ================= -->
+<section id="viewRecovery" class="hidden">
+  <div class="card">
+    <div class="title" style="font-size:17px; margin:0 0 4px">Set a New Password</div>
+    <p class="sub" style="margin:0 0 12px">You opened a password-reset link. Enter a new password for your owner account.</p>
+    <input id="newPassword" type="password" placeholder="New password" autocomplete="new-password">
+    <button class="primary" id="btnSetPassword" style="width:100%">Save New Password</button>
   </div>
 </section>
 
@@ -106,7 +129,7 @@
   <!-- HOME -->
   <section id="screen-home">
     <h2>New Agent Task</h2>
-    <p class="sub">Write a task in your own words. It will not run immediately — it goes to Approvals first, and only runs after you approve it.</p>
+    <p class="sub">Write a task in your own words. It does not run immediately — it goes to Approvals first and runs only after you approve it.</p>
     <div class="card">
       <textarea id="agentText" maxlength="2000" placeholder="Example: Research today's news about Nvidia and write a short report"></textarea>
       <button class="primary" id="btnAgentTask" style="width:100%">Send Task</button>
@@ -115,17 +138,17 @@
     <h2>Quick Tasks</h2>
     <p class="sub">Fixed one-tap tasks. These also wait for your approval.</p>
     <div class="grid">
-      <button data-task="run_nvidia_watch">📰 Nvidia Watch</button>
-      <button data-task="generate_digest">🌅 Morning Digest</button>
-      <button data-task="get_latest_report">📄 Latest Report</button>
-      <button data-task="system_status">🖥️ System Status</button>
+      <button data-task="run_nvidia_watch">Nvidia Watch</button>
+      <button data-task="generate_digest">Morning Digest</button>
+      <button data-task="get_latest_report">Latest Report</button>
+      <button data-task="system_status">System Status</button>
     </div>
   </section>
 
   <!-- APPROVALS -->
   <section id="screen-approvals" class="hidden">
     <h2>Waiting for Approval</h2>
-    <p class="sub">Read the exact task text, then approve or reject. Approved tasks run exactly as written — the text cannot be changed after approval. Unapproved tasks expire: agent tasks in 10 minutes, quick tasks in 1 hour.</p>
+    <p class="sub">Read the exact task text, then approve or reject it. An approved task runs exactly as written — the text cannot be changed after approval. Unapproved tasks expire: agent tasks in 10 minutes, quick tasks in 1 hour.</p>
     <div id="pendingList"><div class="empty">Nothing waiting. New tasks you send will appear here.</div></div>
 
     <h2 style="margin-top:22px">My Requests</h2>
@@ -142,10 +165,10 @@
   <!-- ASK -->
   <section id="screen-ask" class="hidden">
     <h2>Ask a Question</h2>
-    <p class="sub">Questions go straight to the cloud AI model, with your latest reports as context. Asking only answers — it does not run tasks.</p>
+    <p class="sub">Questions go directly to the cloud AI model, with your latest reports as context. Asking only answers — it does not run tasks.</p>
     <div class="card">
       <div id="keyBox">
-        <p class="sub" style="margin:0 0 10px">One-time setup: paste your OpenRouter key. It is stored only on this phone and is sent only to OpenRouter.</p>
+        <p class="sub" style="margin:0 0 10px">One-time setup: paste your OpenRouter key. It is stored only on this device and is sent only to OpenRouter.</p>
         <input id="orKey" type="password" placeholder="OpenRouter key (sk-or-...)">
         <button class="small primary" id="btnSaveKey">Save Key</button>
       </div>
@@ -159,7 +182,7 @@
       </div>
     </div>
     <div class="row">
-      <button class="small" id="btnRefresh">↻ Refresh</button>
+      <button class="small" id="btnRefresh">Refresh</button>
       <span class="time" id="lastSync"></span>
     </div>
   </section>
@@ -169,10 +192,10 @@
 <!-- bottom navigation -->
 <nav id="tabbar" class="hidden">
   <div class="inner">
-    <button data-screen="home" class="active"><span class="ic">🏠</span>Home</button>
-    <button data-screen="approvals"><span class="ic">✅</span>Approvals<span class="badge hidden" id="pendingBadge">0</span></button>
-    <button data-screen="feed"><span class="ic">📰</span>Feed</button>
-    <button data-screen="ask"><span class="ic">💬</span>Ask</button>
+    <button data-screen="home" class="active">Home</button>
+    <button data-screen="approvals">Approvals<span class="badge hidden" id="pendingBadge">0</span></button>
+    <button data-screen="feed">Feed</button>
+    <button data-screen="ask">Ask</button>
   </div>
 </nav>
 
@@ -181,6 +204,7 @@
 // ---- Config (public values only — the database rules protect the data) ----
 const SUPABASE_URL = "https://lvowcmhwmslhrbmsenyu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_2DJZ_plb8Y5nXtbEacGSww_yDy7dDoq";
+const APP_URL = "https://athar-beep.github.io/openjarvis-bridge/";
 const OR_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -188,12 +212,12 @@ const $ = id => document.getElementById(id);
 let user = null, feedCache = [];
 
 const TASK_LABEL = {
-  agent_task: "🤖 Agent Task",
-  run_nvidia_watch: "📰 Nvidia Watch",
-  generate_digest: "🌅 Morning Digest",
-  get_latest_report: "📄 Latest Report",
-  system_status: "🖥️ System Status",
-  summarize_report: "📝 Report Summary"
+  agent_task: "Agent Task",
+  run_nvidia_watch: "Nvidia Watch",
+  generate_digest: "Morning Digest",
+  get_latest_report: "Latest Report",
+  system_status: "System Status",
+  summarize_report: "Report Summary"
 };
 const STATUS_LABEL = {
   pending_approval: "Waiting", approved: "Approved",
@@ -212,6 +236,7 @@ function fmtTime(iso){
   catch(e){ return iso; }
 }
 function esc(s){ const d=document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
+function isOwner(u){ return !!u && !!u.email; }
 
 // ---------------- Navigation ----------------
 function showScreen(name){
@@ -227,27 +252,45 @@ document.querySelectorAll("nav button[data-screen]").forEach(b =>
 // ---------------- Auth ----------------
 async function refreshSession(){
   const { data } = await sb.auth.getSession();
-  user = data.session?.user || null;
-  $("viewAuth").classList.toggle("hidden", !!user);
-  $("viewMain").classList.toggle("hidden", !user);
-  $("tabbar").classList.toggle("hidden", !user);
-  $("btnLogout").classList.toggle("hidden", !user);
-  $("who").textContent = user ? user.email : "";
-  if (user) loadAll();
+  const sessionUser = data.session?.user || null;
+  const owner = isOwner(sessionUser);
+  user = owner ? sessionUser : null;
+  $("viewAuth").classList.toggle("hidden", owner);
+  $("viewRecovery").classList.add("hidden");
+  $("viewMain").classList.toggle("hidden", !owner);
+  $("tabbar").classList.toggle("hidden", !owner);
+  $("btnLogout").classList.toggle("hidden", !sessionUser);
+  $("guestNotice").classList.toggle("hidden", !(sessionUser && !owner));
+  $("who").textContent = owner ? sessionUser.email : "";
+  if (owner) loadAll();
 }
+sb.auth.onAuthStateChange((event) => {
+  if (event === "PASSWORD_RECOVERY"){
+    $("viewAuth").classList.add("hidden");
+    $("viewMain").classList.add("hidden");
+    $("tabbar").classList.add("hidden");
+    $("viewRecovery").classList.remove("hidden");
+  }
+});
 $("btnLogin").onclick = async () => {
   const { error } = await sb.auth.signInWithPassword({
     email: $("email").value.trim(), password: $("password").value });
   if (error) showMsg("Sign-in failed: " + error.message, true);
-  else { showMsg("Signed in ✅"); refreshSession(); }
+  else { showMsg("Signed in."); refreshSession(); }
 };
-$("btnSignup").onclick = async () => {
-  const { data, error } = await sb.auth.signUp({
-    email: $("email").value.trim(), password: $("password").value });
-  if (error) { showMsg("Could not create account: " + error.message, true); return; }
-  if (!data.session)
-    showMsg("Account created. Open the confirmation link in your email, then sign in.");
-  else { showMsg("Account created and signed in ✅"); refreshSession(); }
+$("btnForgot").onclick = async () => {
+  const email = $("email").value.trim();
+  if (!email) { showMsg("Enter your email above first, then tap Forgot your password.", true); return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: APP_URL });
+  if (error) showMsg("Could not send the reset email: " + error.message, true);
+  else showMsg("Password reset email sent. Open the link in your email to set a new password.");
+};
+$("btnSetPassword").onclick = async () => {
+  const pw = $("newPassword").value;
+  if (!pw || pw.length < 6) { showMsg("Password must be at least 6 characters.", true); return; }
+  const { error } = await sb.auth.updateUser({ password: pw });
+  if (error) showMsg("Could not save the password: " + error.message, true);
+  else { showMsg("Password updated. You are signed in."); refreshSession(); }
 };
 $("btnLogout").onclick = async () => { await sb.auth.signOut(); refreshSession(); };
 
@@ -276,7 +319,7 @@ function renderFeed(){
       ${f.title ? `<div class="title">${esc(f.title)}</div>` : ""}
       <p class="body">${esc(f.body)}</p>
       <div class="row" style="margin-top:10px">
-        <button class="small" onclick="createTask('summarize_report','${f.id}')">📝 Summarize this</button>
+        <button class="small" onclick="createTask('summarize_report','${f.id}')">Summarize this</button>
       </div>
     </div>`).join("");
 }
@@ -295,7 +338,7 @@ function renderTasks(tasks){
       </div>
       ${t.body ? `<div class="tasktext">${esc(t.body)}</div>` : ""}
       <div class="row" style="margin-top:12px">
-        <button class="primary small" onclick="setTaskStatus('${t.id}','approved')">✅ Approve — run this</button>
+        <button class="primary small" onclick="setTaskStatus('${t.id}','approved')">Approve — run this task</button>
         <button class="danger small" onclick="setTaskStatus('${t.id}','rejected')">Reject</button>
       </div>
     </div>`).join("")
@@ -326,7 +369,7 @@ async function setTaskStatus(id, status){
   if (status === "approved") patch.approved_at = new Date().toISOString();
   const { error } = await sb.from("oj_tasks").update(patch).eq("id", id);
   if (error) showMsg("Could not update: " + error.message, true);
-  else { showMsg(status === "approved" ? "Approved ✅" : "Rejected."); loadAll(); }
+  else { showMsg(status === "approved" ? "Approved." : "Rejected."); loadAll(); }
 }
 document.querySelectorAll("[data-task]").forEach(b =>
   b.onclick = () => createTask(b.dataset.task));
@@ -347,7 +390,7 @@ $("btnAgentTask").onclick = async () => {
   }
 };
 
-// ---------------- Ask (straight to the cloud model — no VM involved) ----------------
+// ---------------- Ask (directly to the cloud model — no server involved) ----------------
 function orKey(){ return localStorage.getItem("oj_or_key") || ""; }
 function syncKeyUI(){
   const has = !!orKey();
@@ -357,7 +400,7 @@ function syncKeyUI(){
 $("btnSaveKey").onclick = () => {
   const v = $("orKey").value.trim();
   if (!v) { showMsg("Paste the key first.", true); return; }
-  localStorage.setItem("oj_or_key", v); syncKeyUI(); showMsg("Key saved on this phone.");
+  localStorage.setItem("oj_or_key", v); syncKeyUI(); showMsg("Key saved on this device.");
 };
 $("btnChangeKey").onclick = () => { localStorage.removeItem("oj_or_key"); syncKeyUI(); };
 $("btnAsk").onclick = async () => {
